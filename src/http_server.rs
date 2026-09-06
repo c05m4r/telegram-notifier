@@ -137,6 +137,7 @@ async fn notify_handler(
         delivered_to = delivered,
         target_chat = ?target_chat,
         title = %title,
+        message = %full_text,
         "Notificación transmitida"
     );
 
@@ -186,6 +187,7 @@ async fn alert_handler(
     tracing::warn!(
         delivered_to = delivered,
         target_chat = ?target_chat,
+        message = %full_text,
         "Alerta urgente transmitida"
     );
 

@@ -108,8 +108,14 @@ impl AppState {
         let subscribers = self.get_subscribers().await;
         let mut count = 0;
         for chat_id in subscribers {
-            if self.client.send_message(chat_id, text, parse_mode, silent).await.is_ok() {
-                count += 1;
+            match self.client.send_message(chat_id, text, parse_mode, silent).await {
+                Ok(_) => {
+                    tracing::debug!(chat_id = chat_id, "Mensaje enviado");
+                    count += 1;
+                }
+                Err(e) => {
+                    tracing::warn!(chat_id = chat_id, error = %e, "No se pudo enviar mensaje");
+                }
             }
         }
         count
@@ -125,15 +131,15 @@ impl AppState {
     ) -> usize {
         match target_chat {
             Some(chat_id) => {
-                if self
-                    .client
-                    .send_message(chat_id, text, parse_mode, silent)
-                    .await
-                    .is_ok()
-                {
-                    1
-                } else {
-                    0
+                match self.client.send_message(chat_id, text, parse_mode, silent).await {
+                    Ok(_) => {
+                        tracing::debug!(chat_id = chat_id, "Mensaje dirigido enviado");
+                        1
+                    }
+                    Err(e) => {
+                        tracing::warn!(chat_id = chat_id, error = %e, "No se pudo enviar mensaje dirigido");
+                        0
+                    }
                 }
             }
             None => self.broadcast(text, parse_mode, silent).await,

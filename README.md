@@ -158,6 +158,37 @@ sudo systemctl enable --now telegram-notifier
 
 ---
 
+## Logs
+
+Los logs se escriben en **consola (stdout/stderr)** — no hay archivo propio. Dónde verlos según cómo corras el proceso:
+
+**Terminal directo:**
+```bash
+./target/release/telegram-notifier
+```
+
+**systemd** (si usas el servicio):
+```bash
+journalctl -u telegram-notifier -f
+```
+
+**Redireccionar a archivo** (útil para crontab/daemon):
+```bash
+# crea el dir la primera vez
+mkdir -p /var/log
+./target/release/telegram-notifier >> /var/log/telegram-notifier.log 2>&1
+tail -f /var/log/telegram-notifier.log
+```
+
+**Nivel de detalle** — filtro por `RUST_LOG` (default `info`):
+```bash
+RUST_LOG=debug ./target/release/telegram-notifier   # + cada envío por chat y motivos
+RUST_LOG=warn  ./target/release/telegram-notifier   # solo avisos y errores
+RUST_LOG=telegram_notifier=info,axum=warn ./target/release/telegram-notifier  # por módulo
+```
+
+---
+
 ## Ejecutar con crontab (alternativa a systemd)
 
 ```cron
